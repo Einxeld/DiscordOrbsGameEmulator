@@ -1,6 +1,6 @@
 # Game Emulator — WPF (.NET 8)
 
-Приложение копирует `calc.exe` по указанным путям, эмулируя наличие игр для тайм-трекера.
+Приложение копирует `calc.exe` по указанным путям, эмулируя наличие игр для получения Discord Orbs.
 
 ## Требования
 
@@ -32,7 +32,7 @@ C:\Games\AnotherGame\AnotherGame.exe
 ## Как пользоваться
 
 1. Разместить `games.txt` в GitHub репозитории
-2. Скопировать **raw** ссылку: `https://raw.githubusercontent.com/USER/REPO/main/games.txt`
+2. Скопировать **raw** ссылку: `https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt`
 3. Вставить в поле URL и нажать **«Загрузить список»**
 4. Для каждой игры:
    - **Установить** — копирует `calc.exe` по указанному пути с нужным именем
