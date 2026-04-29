@@ -1,0 +1,9 @@
+# Full path on each line
+
+C:\Program Files\Steam\steamapps\common\Cyberpunk 2077\bin\x64\Cyberpunk2077.exe
+C:\Program Files\Steam\steamapps\common\The Witcher 3\bin\x64\witcher3.exe
+C:\Program Files\Steam\steamapps\common\Elden Ring\Game\eldenring.exe
+C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\StardewValley.exe
+C:\Program Files\Steam\steamapps\common\Hades\x64\Hades.exe
+C:\Program Files (x86)\GOG Galaxy\Games\Disco Elysium\DiscoElysium.exe
+C:\Program Files\Epic Games\Fortnite\FortniteGame\Binaries\Win64\FortniteClient-Win64-Shipping.exe
