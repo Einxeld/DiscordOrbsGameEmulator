@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace GameEmulator;
 
@@ -50,19 +51,34 @@ public partial class MainWindow : Window
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
     private readonly ObservableCollection<GameEntry> _games = [];
 
-    // ── Emulation-mode entry point ────────────────────────────────────────────
+    // Emulation session state
+    private DispatcherTimer? _emulationTimer;
+    private DateTime _emulationStart;
+    private const double EmulationTotalSeconds = 15 * 60; // 15 minutes
+    private const double ProgressBarMaxWidth = 320.0;
+
+    /// <summary>Path to the original launcher exe, passed via --launcher-path when in emulation mode.</summary>
+    private string? _launcherExePath;
+
+    private const string GitHubUrl = "https://github.com/Einxeld/DiscordOrbsGameEmulator";
+
+    // ── Entry point ───────────────────────────────────────────────────────────
 
     public MainWindow()
     {
         InitializeComponent();
         GamesList.ItemsSource = _games;
 
-        // Check if launched in emulation mode: --emulate "Game Name"
+        // Check if launched in emulation mode: --emulate "Game Name" --launcher-path "C:\...\Launcher.exe"
         var args = Environment.GetCommandLineArgs();
         int idx = Array.IndexOf(args, "--emulate");
         if (idx >= 0 && idx + 1 < args.Length)
         {
-            ShowEmulationMode(args[idx + 1]);
+            // Capture the original launcher path so "Закончить" can reopen it
+            int lpIdx = Array.IndexOf(args, "--launcher-path");
+            string? launcherPath = (lpIdx >= 0 && lpIdx + 1 < args.Length) ? args[lpIdx + 1] : null;
+
+            ShowEmulationMode(args[idx + 1], launcherPath);
             return; // Don't auto-load in emulation mode
         }
 
@@ -70,14 +86,97 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await LoadListAsync();
     }
 
-    private void ShowEmulationMode(string gameName)
-    {
-        Title = $"{gameName}";
+    // ── Emulation mode ────────────────────────────────────────────────────────
 
-        // Hide the entire launcher UI, show only the emulation overlay
+    private void ShowEmulationMode(string gameName, string? launcherPath)
+    {
+        Title = gameName;
+
+        // Remember the original launcher exe so "Закончить" can reopen it
+        _launcherExePath = (launcherPath is not null && File.Exists(launcherPath))
+            ? launcherPath
+            : FindTargetExe(); // fallback: best-effort
+
+        // Hide the launcher UI, show only the emulation overlay
         LauncherRoot.Visibility = Visibility.Collapsed;
         EmulationOverlay.Visibility = Visibility.Visible;
         EmulationTitle.Text = gameName;
+
+        // Reset progress and time display
+        EmulationProgressFill.Width = 0;
+        EmulationTimeText.Text = "00:00";
+
+        // Start the session timer
+        _emulationStart = DateTime.Now;
+        _emulationTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _emulationTimer.Tick += EmulationTimer_Tick;
+        _emulationTimer.Start();
+    }
+
+    private void EmulationTimer_Tick(object? sender, EventArgs e)
+    {
+        var elapsed = DateTime.Now - _emulationStart;
+        double totalSec = elapsed.TotalSeconds;
+
+        // Update time label (MM:SS)
+        int minutes = (int)(totalSec / 60);
+        int seconds = (int)(totalSec % 60);
+        EmulationTimeText.Text = $"{minutes:D2}:{seconds:D2}";
+
+        // Update progress bar width (0 → ProgressBarMaxWidth over 15 minutes)
+        double progress = Math.Min(1.0, totalSec / EmulationTotalSeconds);
+        EmulationProgressFill.Width = progress * ProgressBarMaxWidth;
+
+        // Once full, stop ticking and update hint text
+        if (progress >= 1.0)
+        {
+            _emulationTimer!.Stop();
+            EmulationSessionHint.Text = "✓ 15 минут прошло, нажмите Закончить!";
+        }
+    }
+
+    /// <summary>User clicks "Закончить" — stops emulation, relaunches the launcher, closes this window.</summary>
+    private void FinishEmulation_Click(object sender, RoutedEventArgs e)
+    {
+        _emulationTimer?.Stop();
+
+        // Reopen the original launcher (path was passed via --launcher-path)
+        if (_launcherExePath is not null)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = _launcherExePath,
+                    UseShellExecute = false
+                });
+            }
+            catch
+            {
+                // If relaunch fails, still close this window — user can open the launcher manually.
+            }
+        }
+
+        Application.Current.Shutdown();
+    }
+
+    // ── GitHub button ─────────────────────────────────────────────────────────
+
+    private void GitHubButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = GitHubUrl,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Не удалось открыть браузер:\n{ex.Message}",
+                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -118,7 +217,7 @@ public partial class MainWindow : Window
     {
         string url = UrlTextBox.Text.Trim();
         if (string.IsNullOrEmpty(url))
-            return; // Nothing to load yet — silently skip on startup
+            return;
 
         EmptyState.Visibility = Visibility.Collapsed;
         LoadingState.Visibility = Visibility.Visible;
@@ -162,7 +261,6 @@ public partial class MainWindow : Window
             }
             else
             {
-                // Fallback: old path-only format
                 exePath = parts[0];
                 gameName = Path.GetFileNameWithoutExtension(exePath);
             }
@@ -170,11 +268,7 @@ public partial class MainWindow : Window
             if (!exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 exePath += ".exe";
 
-            var entry = new GameEntry
-            {
-                GameName = gameName,
-                ExePath = exePath,
-            };
+            var entry = new GameEntry { GameName = gameName, ExePath = exePath };
             entry.IsInstalled = File.Exists(exePath);
             _games.Add(entry);
         }
@@ -199,7 +293,7 @@ public partial class MainWindow : Window
 
     private void RefreshStatus_Click(object sender, RoutedEventArgs e) => RefreshAll();
 
-    // ── INSTALL ───────────────────────────────────────────────────────────────────
+    // ── INSTALL ───────────────────────────────────────────────────────────────
 
     private void InstallButton_Click(object sender, RoutedEventArgs e)
     {
@@ -217,7 +311,9 @@ public partial class MainWindow : Window
 
         try
         {
-            CopyDirectory(sourceDir, entry.Directory, overwrite: false, originalPrefix: "DiscordOrbsGameEmulator", newPrefix: Path.GetFileNameWithoutExtension(entry.ExeName));
+            CopyDirectory(sourceDir, entry.Directory, overwrite: false,
+                originalPrefix: "DiscordOrbsGameEmulator",
+                newPrefix: Path.GetFileNameWithoutExtension(entry.ExeName));
 
             // Drop marker so we know this folder is safe to fully delete later.
             File.WriteAllText(Path.Combine(entry.Directory, ".orb_emulation"), "");
@@ -233,19 +329,18 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Recursively copies <paramref name="source"/> into <paramref name="destination"/>,
-    /// renaming any file whose name starts with <paramref name="originalPrefix"/> to start with
+    /// renaming files whose name starts with <paramref name="originalPrefix"/> to start with
     /// <paramref name="newPrefix"/> instead.</summary>
-    private static void CopyDirectory(string source, string destination, bool overwrite, string originalPrefix, string newPrefix)
+    private static void CopyDirectory(string source, string destination, bool overwrite,
+        string originalPrefix, string newPrefix)
     {
         Directory.CreateDirectory(destination);
 
         foreach (string file in Directory.GetFiles(source))
         {
             string fileName = Path.GetFileName(file);
-
             if (fileName.StartsWith(originalPrefix, StringComparison.OrdinalIgnoreCase))
                 fileName = newPrefix + fileName[originalPrefix.Length..];
-
             File.Copy(file, Path.Combine(destination, fileName), overwrite);
         }
 
@@ -270,13 +365,17 @@ public partial class MainWindow : Window
 
         try
         {
+            string? launcherExe = FindTargetExe();
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = entry.ExePath,
-                Arguments = $"--emulate \"{entry.GameName}\"",
+                Arguments = $"--emulate \"{entry.GameName}\" --launcher-path \"{launcherExe}\"",
                 UseShellExecute = false
             });
-            SetStatus($"▶  Запущена: {entry.GameName}");
+
+            // Close the launcher now that the emulated window is starting
+            Application.Current.Shutdown();
         }
         catch (Exception ex)
         {
@@ -286,7 +385,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ── DELETE ────────────────────────────────────────────────────────────────────
+    // ── DELETE ────────────────────────────────────────────────────────────────
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
