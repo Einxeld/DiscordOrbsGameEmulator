@@ -1,0 +1,46 @@
+# Each line: Game name | full exe path
+
+Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
+Genshin Impact | C:\Program Files (x86)\Steam\steamapps\common\Genshin Impact Game\GenshinImpact.exe
+Delta Force | C:\Program Files (x86)\Steam\steamapps\common\Delta Force\Win64\DeltaForceClient-Win64-Shipping.exe
+Where Winds Meet | C:\Program Files (x86)\Steam\steamapps\common\Where Winds Meet\Win64\wwm.exe
+Arknights: Endfield | C:\Program Files (x86)\Steam\steamapps\common\ArknightsEndfield\Game\Endfield.exe
+Arc Raiders | C:\Program Files (x86)\Steam\steamapps\common\Arc Raiders\PioneerGame.exe
+Arena Breakout: Infinite | C:\Program Files (x86)\Steam\steamapps\common\Arena Breakout Infinite\Win64\UAGame.exe
+BloonsTD6 | C:\Program Files (x86)\Steam\steamapps\common\BloonsTD6\BloonsTD6.exe
+Blue Archive | C:\Program Files (x86)\Steam\steamapps\common\BlueArchive\BlueArchive.exe
+Blue Protocol: Star Resonance | C:\Program Files (x86)\Steam\steamapps\common\Blue Protocol Star Resonance\Binaries\Win64\BPSR.exe
+COD BO7 | C:\Program Files (x86)\Steam\steamapps\common\Call of Duty Black Ops 7\Content\cod.exe
+Comet AI Browser | C:\Program Files (x86)\Steam\steamapps\common\Perplexity\Comet\Application\comet.exe
+Destiny 2 | C:\Program Files (x86)\Steam\steamapps\common\Destiny 2\destiny2.exe
+Fallout 4 | C:\Program Files (x86)\Steam\steamapps\common\Fallout4\Fallout4.exe
+Fallout 76 | C:\Program Files (x86)\Steam\steamapps\common\Fallout76\Fallout76.exe
+Fortnite | C:\Program Files (x86)\Steam\steamapps\common\Fortnite\Win64\FortniteClient-Win64-Shipping.exe
+Goddess of Victory: Nikke | C:\Program Files (x86)\Steam\steamapps\common\Goddess of Victory Nikke\Win64\nikke.exe
+Grounded 2 | C:\Program Files (x86)\Steam\steamapps\common\Grounded 2\WinGRTS\Grounded2-WinGRTS-Shipping.exe
+GTAV | C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V\GTA5.exe
+Highguard | C:\Program Files (x86)\Steam\steamapps\common\Highguard\Win64\HighguardClient-Win64-Shipping.exe
+Hunt: Showdown 1896 | C:\Program Files (x86)\Steam\steamapps\common\Hunt Showdown 1896\win_x64\HuntGame.exe
+John Carpenter's Toxic Commando | C:\Program Files (x86)\Steam\steamapps\common\John Carpenter's Toxic Commando Demo\John Carpenter's Toxic Commando.exe
+League of Legends | C:\Program Files (x86)\Steam\steamapps\common\League of Legends\Game\League of Legends.exe
+Marathon Server Slam | C:\Program Files (x86)\Steam\steamapps\common\Marathon Server Slam\Marathon.exe
+Marvel Rivals | C:\Program Files (x86)\Steam\steamapps\common\Marvel Rivals\Win64\Marvel-Win64-Shipping.exe
+Once Human | C:\Program Files (x86)\Steam\steamapps\common\Once Human\Once_Human.exe
+Opera | C:\Program Files (x86)\Steam\steamapps\common\Opera GX\opera.exe
+Path of Exile 2 | C:\Program Files (x86)\Steam\steamapps\common\Grinding Gear Games\Path of Exile 2\pathofexile.exe
+Plants vs Zombies | C:\Program Files (x86)\Steam\steamapps\common\PVZ REPLANTED - PC\Replanted.exe
+Pragmata | C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA SKETCHBOOK\PRAGMATA_SKETCHBOOK.exe
+PUBG | C:\Program Files (x86)\Steam\steamapps\common\PUBG\Win64\TslGame.exe
+R.E.P.O. | C:\Program Files (x86)\Steam\steamapps\common\REPO\REPO.exe
+RAID: Shadow Legends | C:\Program Files (x86)\Steam\steamapps\common\RAID Shadow Legends\build\Raid.exe
+Risk of Rain 2 | C:\Program Files (x86)\Steam\steamapps\common\Risk of Rain 2\Risk of Rain 2.exe
+Skate | C:\Program Files (x86)\Steam\steamapps\common\Skate\Skate.exe
+Storm Lancers Demo | C:\Program Files (x86)\Steam\steamapps\common\Storm Lancers Demo\StormLancersDemo.exe
+Summoners War | C:\Program Files (x86)\Steam\steamapps\common\Summoners War\SummonersWar.exe
+Terminull Brigade | C:\Program Files (x86)\Steam\steamapps\common\Terminull Brigade\Win64\Rouge-Win64-Shipping.exe
+Torchlight: Infinite | C:\Program Files (x86)\Steam\steamapps\common\Torchlight Infinite\UE_game\Binaries\Win64\torchlight_infinite.exe
+Valorant | C:\Program Files (x86)\Steam\steamapps\common\Valorant\Win64\Valorant-Win64-Shipping.exe
+Vindictus | C:\Program Files (x86)\Steam\steamapps\common\Vindictus\Vindictus.exe
+World of Warcraft: Midnight | C:\Program Files (x86)\Steam\steamapps\common\World of Warcraft_retail_\Wow.exe
+Wuthering Waves | C:\Program Files (x86)\Steam\steamapps\common\Wuthering Waves\Win64\Wuthering Waves.exe
+2XKO | C:\Program Files (x86)\Steam\steamapps\common\2XKO\Live\Lion\Binaries\Win64\Lion-Win64-Shipping.exe
