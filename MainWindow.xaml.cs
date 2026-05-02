@@ -20,6 +20,7 @@ public class GameEntry : INotifyPropertyChanged
     public string GameName { get; init; } = "";
     public string ExePath { get; init; } = "";
     public string Directory => Path.GetDirectoryName(ExePath) ?? "";
+    public string ExeName => Path.GetFileName(ExePath) ?? "";
 
     public bool IsInstalled
     {
@@ -216,8 +217,7 @@ public partial class MainWindow : Window
 
         try
         {
-            CopyDirectory(sourceDir, entry.Directory, overwrite: false,
-                originalPrefix: "DiscordOrbsGameEmulator", newPrefix: entry.GameName);
+            CopyDirectory(sourceDir, entry.Directory, overwrite: false, originalPrefix: "DiscordOrbsGameEmulator", newPrefix: Path.GetFileNameWithoutExtension(entry.ExeName));
 
             // Drop marker so we know this folder is safe to fully delete later.
             File.WriteAllText(Path.Combine(entry.Directory, ".orb_emulation"), "");
@@ -235,8 +235,7 @@ public partial class MainWindow : Window
     /// <summary>Recursively copies <paramref name="source"/> into <paramref name="destination"/>,
     /// renaming any file whose name starts with <paramref name="originalPrefix"/> to start with
     /// <paramref name="newPrefix"/> instead.</summary>
-    private static void CopyDirectory(string source, string destination,
-        bool overwrite, string originalPrefix, string newPrefix)
+    private static void CopyDirectory(string source, string destination, bool overwrite, string originalPrefix, string newPrefix)
     {
         Directory.CreateDirectory(destination);
 
