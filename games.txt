@@ -1,5 +1,6 @@
 # Each line: Game name | full exe path
 
+Rune Dice | C:\Program Files (x86)\Steam\steamapps\common\Rune Dice\Binaries\Win64\Rune Dice.exe 
 Roblox Beta (Fisch) | C:\Program Files (x86)\Steam\steamapps\common\Roblox\RobloxPlayerBeta.exe
 Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
 Genshin Impact | C:\Program Files (x86)\Steam\steamapps\common\Genshin Impact Game\GenshinImpact.exe
