@@ -1,5 +1,7 @@
 # Each line: Game name | full exe path
 
+Escape the Backrooms | C:\Program Files (x86)\Steam\steamapps\common\win64\backrooms-win64-shipping.exe
+EA Sports FC 26 | C:\Program Files (x86)\Steam\steamapps\common\ea sports fc 26\fc26.exe
 Path of Exile 2 | C:\Program Files (x86)\Steam\steamapps\common\Grinding Gear Games\Path of Exile 2\pathofexile.exe
 Once Human | C:\Program Files (x86)\Steam\steamapps\common\Once Human\Once_Human.exe
 Rune Dice | C:\Program Files (x86)\Steam\steamapps\common\Rune Dice\Binaries\Win64\Rune Dice.exe 
