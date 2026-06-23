@@ -20,6 +20,9 @@
    - **Запустить** — запускает скопированный exe с агрументом --emulate "GameName"
    - **Удалить** — удаляет папку (предупредит, если в ней нет .orb_emulation)
 
+Пути к играм можно узнать тут: https://tithen-firion.github.io/discord-games/
+или тут: https://cdn.discordapp.com/detectables/games.json
+
 ## Формат games.txt
 ```
 # Комментарии начинаются с #

@@ -1,12 +1,16 @@
 # Each line: Game name | full exe path
 
+Warframe | C:\Program Files (x86)\Steam\steamapps\common\Warframe\warframe.exe
+Zenless Zone Zero | C:\Program Files (x86)\Steam\steamapps\common\zenlesszonezero game/zenlesszonezero.exe
+EMPULSE | C:\Program Files (x86)\Steam\steamapps\common\orionclient-win64-shipping.exe
+GOALS | C:\Program Files (x86)\Steam\steamapps\common\GOALS\Game\Binaries\Win64\Goals.exe
 Duet Night Abyss | C:\Program Files (x86)\Steam\steamapps\common\Duet Night Abyss\EM\Binaries\Win64\EM-Win64-Shipping.exe
 Escape From Backrooms | C:\Program Files (x86)\Steam\steamapps\common\EscapeTheBackrooms\Binaries\Win64\Backrooms-Win64-Shipping.exe
 EA Sports FC 26 | C:\Program Files (x86)\Steam\steamapps\common\EA SPORTS FC 26\FC26.exe
 Path of Exile 2 | C:\Program Files (x86)\Steam\steamapps\common\Grinding Gear Games\Path of Exile 2\pathofexile.exe
 Once Human | C:\Program Files (x86)\Steam\steamapps\common\Once Human\Once_Human.exe
 Rune Dice | C:\Program Files (x86)\Steam\steamapps\common\Rune Dice\Binaries\Win64\Rune Dice.exe 
-Roblox Beta (Fisch) | C:\Program Files (x86)\Steam\steamapps\common\Roblox\RobloxPlayerBeta.exe
+Roblox | C:\Program Files (x86)\Steam\steamapps\common\Roblox\RobloxPlayerBeta.exe
 Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
 Genshin Impact | C:\Program Files (x86)\Steam\steamapps\common\Genshin Impact Game\GenshinImpact.exe
 Delta Force | C:\Program Files (x86)\Steam\steamapps\common\Delta Force\Win64\DeltaForceClient-Win64-Shipping.exe
