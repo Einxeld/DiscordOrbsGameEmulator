@@ -7,8 +7,8 @@
 ## Требования
 
 - Windows 10/11
-- .NET 8 Desktop Runtime<br>
-https://dotnet.microsoft.com/download/dotnet/8.0](https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.26/dotnet-runtime-8.0.26-win-x64.exe
+- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
+
 
 ## Как пользоваться
 

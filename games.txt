@@ -1,5 +1,12 @@
 # Each line: Game name | full exe path
 
+Duet Night Abyss | C:\Program Files (x86)\Steam\steamapps\common\Duet Night Abyss\EM\Binaries\Win64\EM-Win64-Shipping.exe
+Escape From Backrooms | C:\Program Files (x86)\Steam\steamapps\common\EscapeTheBackrooms\Binaries\Win64\Backrooms-Win64-Shipping.exe
+EA Sports FC 26 | C:\Program Files (x86)\Steam\steamapps\common\EA SPORTS FC 26\FC26.exe
+Path of Exile 2 | C:\Program Files (x86)\Steam\steamapps\common\Grinding Gear Games\Path of Exile 2\pathofexile.exe
+Once Human | C:\Program Files (x86)\Steam\steamapps\common\Once Human\Once_Human.exe
+Rune Dice | C:\Program Files (x86)\Steam\steamapps\common\Rune Dice\Binaries\Win64\Rune Dice.exe 
+Roblox Beta (Fisch) | C:\Program Files (x86)\Steam\steamapps\common\Roblox\RobloxPlayerBeta.exe
 Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
 Genshin Impact | C:\Program Files (x86)\Steam\steamapps\common\Genshin Impact Game\GenshinImpact.exe
 Delta Force | C:\Program Files (x86)\Steam\steamapps\common\Delta Force\Win64\DeltaForceClient-Win64-Shipping.exe
@@ -25,9 +32,7 @@ John Carpenter's Toxic Commando | C:\Program Files (x86)\Steam\steamapps\common\
 League of Legends | C:\Program Files (x86)\Steam\steamapps\common\League of Legends\Game\League of Legends.exe
 Marathon Server Slam | C:\Program Files (x86)\Steam\steamapps\common\Marathon Server Slam\Marathon.exe
 Marvel Rivals | C:\Program Files (x86)\Steam\steamapps\common\Marvel Rivals\Win64\Marvel-Win64-Shipping.exe
-Once Human | C:\Program Files (x86)\Steam\steamapps\common\Once Human\Once_Human.exe
 Opera | C:\Program Files (x86)\Steam\steamapps\common\Opera GX\opera.exe
-Path of Exile 2 | C:\Program Files (x86)\Steam\steamapps\common\Grinding Gear Games\Path of Exile 2\pathofexile.exe
 Plants vs Zombies | C:\Program Files (x86)\Steam\steamapps\common\PVZ REPLANTED - PC\Replanted.exe
 Pragmata | C:\Program Files (x86)\Steam\steamapps\common\PRAGMATA SKETCHBOOK\PRAGMATA_SKETCHBOOK.exe
 PUBG | C:\Program Files (x86)\Steam\steamapps\common\PUBG\Win64\TslGame.exe
