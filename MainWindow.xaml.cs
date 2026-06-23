@@ -69,6 +69,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         GamesList.ItemsSource = _games;
 
+        // Hide placeholder when text is typed
+        SearchBox.TextChanged += (_, _) =>
+            SearchPlaceholder.Visibility = string.IsNullOrEmpty(SearchBox.Text)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
         // Check if launched in emulation mode: --emulate "Game Name" --launcher-path "C:\...\Launcher.exe"
         var args = Environment.GetCommandLineArgs();
         int idx = Array.IndexOf(args, "--emulate");
@@ -84,6 +90,46 @@ public partial class MainWindow : Window
 
         // Auto-load the list if a URL is already configured
         Loaded += async (_, _) => await LoadListAsync();
+    }
+
+    // ── Search ────────────────────────────────────────────────────────────────
+
+    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        ApplySearch(SearchBox.Text);
+    }
+
+    private void ApplySearch(string query)
+    {
+        string trimmed = query.Trim();
+
+        if (_games.Count == 0) return;
+
+        if (string.IsNullOrEmpty(trimmed))
+        {
+            // Show all
+            GamesList.ItemsSource = _games;
+            GamesList.Visibility = Visibility.Visible;
+            NoResultsState.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var filtered = _games
+            .Where(g => g.GameName.Contains(trimmed, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        GamesList.ItemsSource = filtered;
+
+        if (filtered.Count == 0)
+        {
+            GamesList.Visibility = Visibility.Collapsed;
+            NoResultsState.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            GamesList.Visibility = Visibility.Visible;
+            NoResultsState.Visibility = Visibility.Collapsed;
+        }
     }
 
     // ── Emulation mode ────────────────────────────────────────────────────────
@@ -191,21 +237,12 @@ public partial class MainWindow : Window
 
     private void SetStatus(string msg) => StatusBar.Text = msg;
 
-    private void UpdateCounters()
-    {
-        int total = _games.Count;
-        int installed = _games.Count(g => g.IsInstalled);
-        TotalCount.Text = $"Всего: {total}";
-        InstalledCount.Text = $"Установлено: {installed}";
-        NotInstalledCount.Text = $"Не установлено: {total - installed}";
-    }
-
-    /// <summary>Re-checks every entry against the filesystem and updates counters.</summary>
+    /// <summary>Re-checks every entry against the filesystem and re-applies the current search filter.</summary>
     private void RefreshAll(string? statusMessage = null)
     {
         foreach (var g in _games)
             g.IsInstalled = File.Exists(g.ExePath);
-        UpdateCounters();
+        ApplySearch(SearchBox.Text);
         SetStatus(statusMessage ?? "Статус обновлён.");
     }
 
@@ -220,8 +257,10 @@ public partial class MainWindow : Window
             return;
 
         EmptyState.Visibility = Visibility.Collapsed;
+        NoResultsState.Visibility = Visibility.Collapsed;
         LoadingState.Visibility = Visibility.Visible;
         GamesList.Visibility = Visibility.Collapsed;
+        SearchBox.Text = "";
         SetStatus("Загружаю список…");
 
         try
@@ -273,6 +312,15 @@ public partial class MainWindow : Window
             _games.Add(entry);
         }
 
+        var sorted = _games
+            .OrderBy(g => g.GameName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        _games.Clear();
+
+        foreach (var game in sorted)
+            _games.Add(game);
+
         LoadingState.Visibility = Visibility.Collapsed;
 
         if (_games.Count == 0)
@@ -282,11 +330,10 @@ public partial class MainWindow : Window
         }
         else
         {
+            GamesList.ItemsSource = _games;
             GamesList.Visibility = Visibility.Visible;
             SetStatus($"Загружено {_games.Count} записей.");
         }
-
-        UpdateCounters();
     }
 
     // ── Refresh ───────────────────────────────────────────────────────────────

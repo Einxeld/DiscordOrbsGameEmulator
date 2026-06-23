@@ -124,6 +124,12 @@
             </Setter>
         </Style>
 
+        <!-- Search box style -->
+        <Style x:Key="SearchBox" TargetType="TextBox" BasedOn="{StaticResource UrlBox}">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
         <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Width" Value="6"/>
@@ -323,28 +329,35 @@
                 </Grid>
             </Border>
 
-            <!-- STATS BAR -->
+            <!-- SEARCH BAR -->
             <Border Grid.Row="2" Grid.ColumnSpan="2"
-                    Background="#222233"
+                    Background="#1E1E2E"
                     BorderBrush="#44445A"
-                    BorderThickness="0,1,0,1"
-                    Padding="20,8">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="TotalCount"
-                               Text="Всего: 0"
-                               Foreground="#8888A8"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="1"
+                             x:Name="SearchBox"
+                             Style="{StaticResource SearchBox}"
+                             TextChanged="SearchBox_TextChanged" Padding="5,0,10,0">
+                        <TextBox.Resources>
+                            <Style TargetType="Border" BasedOn="{x:Null}"/>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <!-- Placeholder text -->
+                    <TextBlock Grid.Column="1"
+                               x:Name="SearchPlaceholder"
+                               Text="Поиск по названию игры..."
+                               Foreground="#55556A"
                                FontSize="12"
-                               Margin="0,0,20,0"/>
-                    <TextBlock x:Name="InstalledCount"
-                               Text="Установлено: 0"
-                               Foreground="#6ED89A"
-                               FontSize="12"
-                               Margin="0,0,20,0"/>
-                    <TextBlock x:Name="NotInstalledCount"
-                               Text="Не установлено: 0"
-                               Foreground="#8888A8"
-                               FontSize="12"/>
-                </StackPanel>
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"/>
+                </Grid>
             </Border>
 
             <!-- MAIN LIST -->
@@ -376,6 +389,17 @@
                             HorizontalAlignment="Center"
                             Margin="0,40,0,0">
                         <TextBlock Text="⏳  Загрузка..."
+                                   Foreground="#8888A8"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <Border x:Name="NoResultsState"
+                            Visibility="Collapsed"
+                            Padding="40"
+                            HorizontalAlignment="Center"
+                            Margin="0,40,0,0">
+                        <TextBlock Text="Ничего не найдено"
                                    Foreground="#8888A8"
                                    FontSize="14"
                                    HorizontalAlignment="Center"/>
