@@ -1,5 +1,5 @@
 using System.Windows;
 
-namespace GameEmulator;
+namespace DiscordOrbsGameEmulator;
 
 public partial class App : Application { }

@@ -1,14 +1,16 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Threading;
 
-namespace GameEmulator;
+namespace DiscordOrbsGameEmulator;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Model
@@ -37,9 +39,31 @@ public class GameEntry : INotifyPropertyChanged
 
     public bool CanInstall => !_isInstalled;
 
+    /// <summary>True when this entry has a Steam App ID configured (ACF button enabled).</summary>
+    public bool HasAcf => SteamAppId is not null;
+
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    public string? SteamAppId { get; init; }  // null = no ACF needed
+
+    // Derived: where the ACF lives
+    public string? AcfPath => SteamAppId is null ? null : FindSteamAppsDir(ExePath) is string s
+    ? Path.Combine(s, $"appmanifest_{SteamAppId}.acf")
+    : null;
+
+    private static string? FindSteamAppsDir(string exePath)
+    {
+        var dir = new DirectoryInfo(Path.GetDirectoryName(exePath)!);
+        while (dir.Parent is not null)
+        {
+            if (dir.Name.Equals("steamapps", StringComparison.OrdinalIgnoreCase))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+        return null;
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -289,25 +313,21 @@ public partial class MainWindow : Window
 
         foreach (string line in lines)
         {
-            var parts = line.Split('|', 2, StringSplitOptions.TrimEntries);
+            var parts = line.Split('|', 4, StringSplitOptions.TrimEntries);
 
             string gameName, exePath;
+            string? appId = null;
 
-            if (parts.Length == 2)
-            {
-                gameName = parts[0];
-                exePath = parts[1];
-            }
-            else
-            {
-                exePath = parts[0];
-                gameName = Path.GetFileNameWithoutExtension(exePath);
-            }
+            if (parts.Length >= 2) { gameName = parts[0]; exePath = parts[1]; }
+            else { exePath = parts[0]; gameName = Path.GetFileNameWithoutExtension(exePath); }
+
+            if (parts.Length >= 3 && !string.IsNullOrWhiteSpace(parts[2]))
+                appId = parts[2];
 
             if (!exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 exePath += ".exe";
 
-            var entry = new GameEntry { GameName = gameName, ExePath = exePath };
+            var entry = new GameEntry { GameName = gameName, ExePath = exePath, SteamAppId = appId };
             entry.IsInstalled = File.Exists(exePath);
             _games.Add(entry);
         }
@@ -365,6 +385,18 @@ public partial class MainWindow : Window
             // Drop marker so we know this folder is safe to fully delete later.
             File.WriteAllText(Path.Combine(entry.Directory, ".orb_emulation"), "");
 
+            if (entry.AcfPath is not null)
+            {
+                string? installDir = FindInstallDir(entry.ExePath);
+                string acfContent =
+                    $"\"AppState\"\n{{\n" +
+                    $"\t\"appid\"\t\t\"{entry.SteamAppId}\"\n" +
+                    $"\t\"name\"\t\t\"{entry.GameName}\"\n" +
+                    $"\t\"installdir\"\t\t\"{installDir ?? entry.GameName}\"\n" +
+                    $"}}\n";
+                File.WriteAllText(entry.AcfPath, acfContent);
+            }
+
             RefreshAll($"✓  {entry.GameName} установлена → {entry.Directory}");
         }
         catch (Exception ex)
@@ -373,6 +405,18 @@ public partial class MainWindow : Window
             MessageBox.Show($"Не удалось установить игру:\n{ex.Message}",
                 "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private static string? FindInstallDir(string exePath)
+    {
+        var dir = new DirectoryInfo(Path.GetDirectoryName(exePath)!);
+        while (dir.Parent is not null)
+        {
+            if (dir.Parent.Name.Equals("common", StringComparison.OrdinalIgnoreCase))
+                return dir.Name;
+            dir = dir.Parent;
+        }
+        return null;
     }
 
     /// <summary>Recursively copies <paramref name="source"/> into <paramref name="destination"/>,
@@ -460,6 +504,13 @@ public partial class MainWindow : Window
             try
             {
                 Directory.Delete(entry.Directory, recursive: true);
+
+                // Remove ACF marker if we created one
+                if (entry.AcfPath is not null && File.Exists(entry.AcfPath))
+                {
+                    try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
+                }
+
                 RefreshAll($"✗  {entry.GameName} удалена (папка удалена целиком).");
             }
             catch (Exception ex)
@@ -488,6 +539,13 @@ public partial class MainWindow : Window
             try
             {
                 File.Delete(entry.ExePath);
+
+                // Remove ACF marker if we created one
+                if (entry.AcfPath is not null && File.Exists(entry.AcfPath))
+                {
+                    try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
+                }
+
                 RefreshAll($"✗  {entry.GameName} удалена (только exe).");
             }
             catch (Exception ex)
@@ -524,5 +582,78 @@ public partial class MainWindow : Window
             MessageBox.Show($"Не удалось открыть папку:\n{ex.Message}",
                 "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    // ── OPEN ACF ─────────────────────────────────────────────────────────────
+
+    private void OpenAcfButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not GameEntry entry) return;
+
+        string? acfPath = entry.AcfPath;
+        if (acfPath is null)
+        {
+            SetStatus("У этой игры нет ACF-файла.");
+            return;
+        }
+
+        try
+        {
+            if (File.Exists(acfPath))
+            {
+                // Open Explorer with the ACF file selected
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"/select,\"{acfPath}\"",
+                    UseShellExecute = true
+                });
+                SetStatus($"📄 ACF: {acfPath}");
+            }
+            else
+            {
+                // ACF not yet created — open the steamapps folder instead
+                string? steamappsDir = Path.GetDirectoryName(acfPath);
+                if (steamappsDir is not null && System.IO.Directory.Exists(steamappsDir))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "explorer.exe",
+                        Arguments = steamappsDir,
+                        UseShellExecute = true
+                    });
+                    SetStatus($"📂 ACF ещё не создан, открыта папка steamapps: {steamappsDir}");
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"ACF-файл не найден:\n{acfPath}\n\nПапка steamapps также не существует.",
+                        "ACF не найден", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Ошибка открытия ACF: {ex.Message}");
+            MessageBox.Show($"Не удалось открыть ACF:\n{ex.Message}",
+                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+}
+
+public class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType,
+        object parameter, CultureInfo culture)
+    {
+        return value is bool b && !b
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType,
+        object parameter, CultureInfo culture)
+    {
+        return Binding.DoNothing;
     }
 }
