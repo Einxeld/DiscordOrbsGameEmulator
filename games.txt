@@ -3,7 +3,7 @@
 Warframe | C:\Program Files (x86)\Steam\steamapps\common\Warframe\warframe.exe
 Zenless Zone Zero | C:\Program Files (x86)\Steam\steamapps\common\zenlesszonezero game/zenlesszonezero.exe
 EMPULSE | C:\Program Files (x86)\Steam\steamapps\common\orionclient-win64-shipping.exe
-GOALS | C:\Program Files (x86)\Steam\steamapps\common\GOALS\Game\Binaries\Win64\Goals.exe
+GOALS | C:\Program Files (x86)\Steam\steamapps\common\GOALS\Game\Binaries\Win64\Goals.exe | 2753000 | GOALS
 Duet Night Abyss | C:\Program Files (x86)\Steam\steamapps\common\Duet Night Abyss\EM\Binaries\Win64\EM-Win64-Shipping.exe
 Escape From Backrooms | C:\Program Files (x86)\Steam\steamapps\common\EscapeTheBackrooms\Binaries\Win64\Backrooms-Win64-Shipping.exe
 EA Sports FC 26 | C:\Program Files (x86)\Steam\steamapps\common\EA SPORTS FC 26\FC26.exe
