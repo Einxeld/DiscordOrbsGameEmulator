@@ -255,7 +255,7 @@ public partial class MainWindow : Window
         if (progress >= 1.0)
         {
             _emulationTimer!.Stop();
-            EmulationSessionHint.Text = "✓ 15 минут прошло, нажмите Закончить!";
+            EmulationSessionHint.Text = "✓ 15 minutes passed!";
         }
     }
 
@@ -298,8 +298,8 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Не удалось открыть браузер:\n{ex.Message}",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Could not open the browser ({GitHubUrl}):\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -321,7 +321,7 @@ public partial class MainWindow : Window
         foreach (var g in _games)
             g.IsInstalled = File.Exists(g.ExePath);
         ApplySearch(SearchBox.Text);
-        SetStatus(statusMessage ?? "Статус обновлён.");
+        SetStatus(statusMessage ?? "Status updated.");
     }
 
     // ── Load list from GitHub ─────────────────────────────────────────────────
@@ -339,7 +339,7 @@ public partial class MainWindow : Window
         LoadingState.Visibility = Visibility.Visible;
         GamesList.Visibility = Visibility.Collapsed;
         SearchBox.Text = "";
-        SetStatus("Загружаю список…");
+        SetStatus("Loading the list…");
 
         try
         {
@@ -350,9 +350,9 @@ public partial class MainWindow : Window
         {
             LoadingState.Visibility = Visibility.Collapsed;
             EmptyState.Visibility = Visibility.Visible;
-            SetStatus($"Ошибка: {ex.Message}");
-            MessageBox.Show($"Не удалось загрузить список:\n{ex.Message}",
-                "Ошибка загрузки", MessageBoxButton.OK, MessageBoxImage.Error);
+            SetStatus($"Error: {ex.Message}");
+            MessageBox.Show($"Could not load the list:\n{ex.Message}",
+                "Loading error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -400,13 +400,13 @@ public partial class MainWindow : Window
         if (_games.Count == 0)
         {
             EmptyState.Visibility = Visibility.Visible;
-            SetStatus("Список пуст или не содержит корректных путей.");
+            SetStatus("List is empty or incorrect.");
         }
         else
         {
             GamesList.ItemsSource = _games;
             GamesList.Visibility = Visibility.Visible;
-            SetStatus($"Загружено {_games.Count} записей.");
+            SetStatus($"Loaded {_games.Count} games.");
         }
     }
 
@@ -423,8 +423,8 @@ public partial class MainWindow : Window
         string? sourceExe = FindTargetExe();
         if (sourceExe is null)
         {
-            MessageBox.Show("Не удалось определить путь к текущему exe-файлу.",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("Could not determine game path.",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
 
@@ -451,13 +451,13 @@ public partial class MainWindow : Window
                 File.WriteAllText(entry.AcfPath, acfContent);
             }
 
-            RefreshAll($"✓  {entry.GameName} установлена → {entry.Directory}");
+            RefreshAll($"✓  {entry.GameName} installed → {entry.Directory}");
         }
         catch (Exception ex)
         {
-            SetStatus($"Ошибка установки: {ex.Message}");
-            MessageBox.Show($"Не удалось установить игру:\n{ex.Message}",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            SetStatus($"Install error: {ex.Message}");
+            MessageBox.Show($"Could not install the game:\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -504,7 +504,7 @@ public partial class MainWindow : Window
 
         if (!File.Exists(entry.ExePath))
         {
-            RefreshAll("Файл не найден. Статус обновлён.");
+            RefreshAll("File not found. Status updated.");
             return;
         }
 
@@ -524,9 +524,9 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            SetStatus($"Ошибка запуска: {ex.Message}");
-            MessageBox.Show($"Не удалось запустить:\n{ex.Message}",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            SetStatus($"Launch error: {ex.Message}");
+            MessageBox.Show($"Could not launch:\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -538,7 +538,7 @@ public partial class MainWindow : Window
 
         if (!File.Exists(entry.ExePath))
         {
-            RefreshAll("Файл уже не существует. Статус обновлён.");
+            RefreshAll("File already exists. Status updated.");
             return;
         }
 
@@ -548,8 +548,8 @@ public partial class MainWindow : Window
         if (isEmulatorCopy)
         {
             var result = MessageBox.Show(
-                $"Удалить папку эмулятора «{entry.GameName}»?\n{entry.Directory}",
-                "Подтверждение удаления",
+                $"Delete emulator folder «{entry.GameName}»?\n{entry.Directory}",
+                "Confirm deletion",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -565,28 +565,28 @@ public partial class MainWindow : Window
                     try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
                 }
 
-                RefreshAll($"✗  {entry.GameName} удалена (папка удалена целиком).");
+                RefreshAll($"✗  {entry.GameName} deleted (folder deleted completely).");
             }
             catch (Exception ex)
             {
-                SetStatus($"Ошибка удаления: {ex.Message}");
-                MessageBox.Show($"Не удалось удалить папку:\n{ex.Message}",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                SetStatus($"Deletion error: {ex.Message}");
+                MessageBox.Show($"Could not delete the folder:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         else
         {
             var result = MessageBox.Show(
-                $"В папке \"{entry.Directory}\" нет метки эмулятора.\n\n" +
-                $"Возможно, это настоящая игра, а не копия эмулятора.\n\n" +
-                $"Удалить только файл \"{Path.GetFileName(entry.ExePath)}\"?",
-                "Внимание: маркер .orb_emulation не найден",
+                $"There is no emulator marker in the folder \"{entry.Directory}\".\n\n" +
+                $"This might be a real game, not an emulator copy.\n\n" +
+                $"Delete only the file \"{Path.GetFileName(entry.ExePath)}\"?",
+                "Warning: .orb_emulation marker not found",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
             if (result != MessageBoxResult.Yes)
             {
-                SetStatus("Удаление отменено пользователем.");
+                SetStatus("Deletion cancelled.");
                 return;
             }
 
@@ -600,13 +600,13 @@ public partial class MainWindow : Window
                     try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
                 }
 
-                RefreshAll($"✗  {entry.GameName} удалена (только exe).");
+                RefreshAll($"✗  {entry.GameName} deleted (only .exe).");
             }
             catch (Exception ex)
             {
-                SetStatus($"Ошибка удаления: {ex.Message}");
-                MessageBox.Show($"Не удалось удалить файл:\n{ex.Message}",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                SetStatus($"Deletion error: {ex.Message}");
+                MessageBox.Show($"Could not delete the file:\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -628,13 +628,13 @@ public partial class MainWindow : Window
                 Arguments = entry.Directory,
                 UseShellExecute = true
             });
-            SetStatus($"📂 Открыта папка: {entry.Directory}");
+            SetStatus($"📂 Folder opened: {entry.Directory}");
         }
         catch (Exception ex)
         {
-            SetStatus($"Ошибка открытия папки: {ex.Message}");
-            MessageBox.Show($"Не удалось открыть папку:\n{ex.Message}",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            SetStatus($"Error opening the folder: {ex.Message}");
+            MessageBox.Show($"Could not open the folder:\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -647,7 +647,7 @@ public partial class MainWindow : Window
         string? acfPath = entry.AcfPath;
         if (acfPath is null)
         {
-            SetStatus("У этой игры нет ACF-файла.");
+            SetStatus("This game has no ACF file.");
             return;
         }
 
@@ -676,21 +676,21 @@ public partial class MainWindow : Window
                         Arguments = steamappsDir,
                         UseShellExecute = true
                     });
-                    SetStatus($"📂 ACF ещё не создан, открыта папка steamapps: {steamappsDir}");
+                    SetStatus($"📂 ACF was not yet created, opened the folder: {steamappsDir}");
                 }
                 else
                 {
                     MessageBox.Show(
-                        $"ACF-файл не найден:\n{acfPath}\n\nПапка steamapps также не существует.",
-                        "ACF не найден", MessageBoxButton.OK, MessageBoxImage.Information);
+                        $"ACF file not found:\n{acfPath}\n\nsteamapps folder also does not exist.",
+                        "ACF not found", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
         catch (Exception ex)
         {
-            SetStatus($"Ошибка открытия ACF: {ex.Message}");
-            MessageBox.Show($"Не удалось открыть ACF:\n{ex.Message}",
-                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            SetStatus($"ACF opening error: {ex.Message}");
+            MessageBox.Show($"Could not open the ACF file:\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

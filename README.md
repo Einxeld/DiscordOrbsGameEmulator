@@ -1,36 +1,36 @@
 # Game Emulator — WPF (.NET 8)
 
-Приложение копирует себя по путям из [games.txt](https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt), эмулируя наличие игр для получения Discord Orbs.
+The application copies itself to the paths listed in [games.txt](https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt), emulating the presence of games to obtain Discord Orbs.
 
-<img width="803" height="644" alt="изображение" src="https://github.com/user-attachments/assets/a0e6fb05-32b1-4530-a47a-69df9b3d964c" />
+<img width="803" height="644" alt="image" src="https://github.com/user-attachments/assets/a0e6fb05-32b1-4530-a47a-69df9b3d964c" />
 
-## Требования
+## Requirements
 
 - Windows 10/11
 - [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
 
+## How to Use
 
-## Как пользоваться
+1. Extract the program to a separate folder.
+2. Copy the **raw** link: `https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt`
+3. Paste it into the URL field and click **"Load List"**.
+4. For each game:
+   - **Install** — copies the program to the specified path, renaming the `.exe` accordingly.
+   - **Launch** — runs the copied `.exe` with the `--emulate "GameName"` argument.
+   - **Delete** — removes the folder (will warn if it does not contain `.orb_emulation`).
 
-1. Распаковать программу в отдельную папку
-2. Скопировать **raw** ссылку: `https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt`
-3. Вставить в поле URL и нажать **«Загрузить список»**
-4. Для каждой игры:
-   - **Установить** — копирует программу по указанному пути с переименованием exe
-   - **Запустить** — запускает скопированный exe с агрументом --emulate "GameName"
-   - **Удалить** — удаляет папку (предупредит, если в ней нет .orb_emulation)
+You can find game paths here: https://tithen-firion.github.io/discord-games/  
+or here: https://cdn.discordapp.com/detectables/games.json
 
-Пути к играм можно узнать тут: https://tithen-firion.github.io/discord-games/
-или тут: https://cdn.discordapp.com/detectables/games.json
+## games.txt Format
 
-## Формат games.txt
 ```
-# Комментарии начинаются с #
-# На каждой строке: Имя игры | Полный путь
+# Lines starting with # are comments
+# Each line: Game Name | Full Path
 Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
 ```
 
-## Для самостоятельной сборки
+## Building from Source
 
 ```bash
 cd GameEmulator
@@ -38,4 +38,6 @@ dotnet build
 dotnet run
 ```
 
-Или через Visual Studio 2022: открыть `GameEmulator.csproj`, нажать F5.
+Or compile the app via Visual Studio 2022: open GameEmulator.csproj and press F5.
+
+This app uses the only one analytic on app lauch using anonymous token to the PostHog API. You can check the source for yourself (SendDailyActiveUserAsync() in the MainWindow.xaml.cs).

@@ -97,7 +97,7 @@
             <Setter Property="Padding" Value="14,0"/>
         </Style>
 
-        <!-- Large "Закончить" button for the emulation overlay -->
+        <!-- Large "Finish" button for the emulation overlay -->
         <Style x:Key="FinishButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
             <Setter Property="Background" Value="#7C9EF8"/>
             <Setter Property="Foreground" Value="#1E1E2E"/>
@@ -207,24 +207,24 @@
                             Visibility="{Binding HasAcf, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Tag="{Binding}"
                             Click="OpenAcfButton_Click"/>
-                        <Button Content="📂 Обзор"
+                        <Button Content="📂 Browse"
                             Style="{StaticResource FolderButton}"
                             Margin="0,0,6,0"
                             Tag="{Binding}"
                             Click="OpenFolderButton_Click"/>
-                        <Button Content="Установить"
+                        <Button Content="Install"
                             Style="{StaticResource InstallButton}"
                             Margin="0,0,6,0"
                             Visibility="{Binding IsInstalled, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
                             Tag="{Binding}"
                             Click="InstallButton_Click"/>
-                        <Button Content="Удалить"
+                        <Button Content="Delete"
                             Style="{StaticResource DeleteButton}"
                             Margin="0,0,6,0"
                             Visibility="{Binding IsInstalled, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Tag="{Binding}"
                             Click="DeleteButton_Click"/>
-                        <Button Content="▶  Запустить"
+                        <Button Content="▶  Run"
                             Style="{StaticResource RunButton}"
                             Margin="0,0,0,0"
                             IsEnabled="{Binding IsInstalled}"
@@ -251,7 +251,7 @@
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
-        
+
     </Window.Resources>
 
     <!-- ══ OUTER WRAPPER ══ -->
@@ -282,11 +282,11 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Image x:Name="Star" Height="45" Source="/star64.png" Stretch="Fill" Margin="0,0,7,0"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Эмуляция запуска игр для Discord Orbs"
+                            <TextBlock Text="Game Launch Emulation for Discord Orbs"
                                        Foreground="#E0E0F0"
                                        FontSize="17"
                                        FontWeight="Bold"/>
-                            <TextBlock Text="По указанному пути будет скопирован этот exe и запущен с именем игры"
+                            <TextBlock Text="This exe will be copied to the specified path and launched with the game's name"
                                        Foreground="#8888A8"
                                        FontSize="11"/>
                         </StackPanel>
@@ -294,7 +294,7 @@
 
                     <!-- Right: GitHub updates button -->
                     <Button x:Name="GitHubButton"
-                            Content="Github (Обновления)"
+                            Content="GitHub (Updates here)"
                             Style="{StaticResource GithubButton}"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
@@ -309,8 +309,8 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto" MinWidth="135.573"/>
-                        <ColumnDefinition Width="Auto" MinWidth="163.51"/>
+                        <ColumnDefinition Width="Auto" MinWidth="86.917"/>
+                        <ColumnDefinition Width="Auto" MinWidth="105.083"/>
                     </Grid.ColumnDefinitions>
 
                     <TextBox Grid.Column="0"
@@ -318,12 +318,12 @@
                              Style="{StaticResource UrlBox}"
                              Text="https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt"
                              Margin="0,0,5,0"/>
-                    <Button Content="Загрузить список"
+                    <Button Content="Load List"
                             Style="{StaticResource InstallButton}"
                             Margin="5,2,5,2"
                             Click="LoadList_Click" Grid.Column="1"/>
                     <Button Grid.Column="2"
-                            Content="Перепроверить файлы"
+                            Content="Recheck Files"
                             Style="{StaticResource ReloadButton}"
                             Click="RefreshStatus_Click" Margin="5,2,0,2"/>
                 </Grid>
@@ -351,7 +351,7 @@
                     <!-- Placeholder text -->
                     <TextBlock Grid.Column="1"
                                x:Name="SearchPlaceholder"
-                               Text="Поиск по названию игры..."
+                               Text="Search by game name..."
                                Foreground="#55556A"
                                FontSize="12"
                                IsHitTestVisible="False"
@@ -376,7 +376,7 @@
                                        FontSize="40"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,12" Foreground="White"/>
-                            <TextBlock Text="Введите URL и нажмите «Загрузить список»"
+                            <TextBlock Text="Enter a URL and click «Load List»"
                                        Foreground="#8888A8"
                                        FontSize="14"
                                        HorizontalAlignment="Center"/>
@@ -388,7 +388,7 @@
                             Padding="40"
                             HorizontalAlignment="Center"
                             Margin="0,40,0,0">
-                        <TextBlock Text="⏳  Загрузка..."
+                        <TextBlock Text="⏳  Loading..."
                                    Foreground="#8888A8"
                                    FontSize="14"
                                    HorizontalAlignment="Center"/>
@@ -399,7 +399,7 @@
                             Padding="40"
                             HorizontalAlignment="Center"
                             Margin="0,40,0,0">
-                        <TextBlock Text="Ничего не найдено"
+                        <TextBlock Text="Nothing found"
                                    Foreground="#8888A8"
                                    FontSize="14"
                                    HorizontalAlignment="Center"/>
@@ -424,7 +424,7 @@
                     BorderThickness="0,1,0,0"
                     Padding="20,8">
                 <TextBlock x:Name="StatusBar"
-                           Text="Готово"
+                           Text="Ready"
                            Foreground="#8888A8"
                            FontSize="11"/>
             </Border>
@@ -446,7 +446,7 @@
                            HorizontalAlignment="Center"
                            Margin="0,12,0,0"/>
 
-                <TextBlock Text="идёт эмуляция игры"
+                <TextBlock Text="game emulation in progress"
                            FontSize="14"
                            Foreground="#8888A8"
                            HorizontalAlignment="Center"
@@ -476,14 +476,14 @@
                            Margin="0,10,0,4"/>
 
                 <TextBlock x:Name="EmulationSessionHint"
-                           Text="из 15:00 для Discord Orbs"
+                           Text="of 15:00 for Discord Orbs"
                            FontSize="11"
                            Foreground="#55556A"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,28"/>
 
-                <!-- Закончить button -->
-                <Button Content="Закончить"
+                <!-- Finish button -->
+                <Button Content="Finish"
                         Style="{StaticResource FinishButton}"
                         HorizontalAlignment="Center"
                         Click="FinishEmulation_Click"/>
