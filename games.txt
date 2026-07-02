@@ -1,7 +1,7 @@
 # Each line: Game name | full exe path
 
 Old School RuneScape | C:\Program Files (x86)\Steam\steamapps\common\old school runescape\win64\osclient.exe
-Gear Up | C:\Program Files (x86)\Steam\steamapps\common\GearUp\traktor.amalgam.app.exe
+Gear Up | C:\Program Files (x86)\Steam\steamapps\common\GearUp\Gearup_ball.exe
 Warframe | C:\Program Files (x86)\Steam\steamapps\common\Warframe\warframe.exe
 Zenless Zone Zero | C:\Program Files (x86)\Steam\steamapps\common\zenlesszonezero game/zenlesszonezero.exe
 EMPULSE | C:\Program Files (x86)\Steam\steamapps\common\orionclient-win64-shipping.exe
