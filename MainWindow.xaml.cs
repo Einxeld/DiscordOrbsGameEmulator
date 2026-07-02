@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -86,11 +87,64 @@ public partial class MainWindow : Window
 
     private const string GitHubUrl = "https://github.com/Einxeld/DiscordOrbsGameEmulator";
 
+    // ── Stats ───────────────────────────────────────────────────────────
+
+    private const string PostHogApiKey = "phc_mrKjD2E57ifLgAKMZVDVjuyCBT7UFMY53gwqZFF8Sr4Q";
+    private const string PostHogUrl = "https://eu.i.posthog.com/capture/";
+
+    private static readonly string AnalyticsDir =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "DiscordOrbsGameEmulator");
+
+    private static readonly string UserIdFile =
+        Path.Combine(AnalyticsDir, "analytics.id");
+
+    private static string GetOrCreateUserId()
+    {
+        Directory.CreateDirectory(AnalyticsDir);
+
+        if (File.Exists(UserIdFile))
+            return File.ReadAllText(UserIdFile);
+
+        string id = Guid.NewGuid().ToString();
+        File.WriteAllText(UserIdFile, id);
+        return id;
+    }
+
+    private async Task SendDailyActiveUserAsync()
+    {
+        var payload = new
+        {
+            api_key = PostHogApiKey,
+            @event = "app_launch",
+            properties = new
+            {
+                distinct_id = GetOrCreateUserId(),
+                app_version =
+                    System.Reflection.Assembly.GetExecutingAssembly()
+                        .GetName().Version?.ToString(),
+                os = Environment.OSVersion.VersionString
+            }
+        };
+
+        try
+        {
+            await Http.PostAsJsonAsync(PostHogUrl, payload);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
     // ── Entry point ───────────────────────────────────────────────────────────
 
     public MainWindow()
     {
         InitializeComponent();
+
+        _ = SendDailyActiveUserAsync();
+
         GamesList.ItemsSource = _games;
 
         // Hide placeholder when text is typed
