@@ -326,6 +326,55 @@ public partial class MainWindow : Window
 
     // ── Load list from GitHub ─────────────────────────────────────────────────
 
+    private void PasteList_Click(object sender, RoutedEventArgs e) => LoadListFromClipboard();
+    
+    private void LoadListFromClipboard()
+    {
+        string raw;
+        try
+        {
+            if (!Clipboard.ContainsText())
+            {
+                SetStatus("Clipboard does not contain any text.");
+                return;
+            }
+            raw = Clipboard.GetText();
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Clipboard error: {ex.Message}");
+            MessageBox.Show($"Could not read the clipboard:\n{ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+    
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            SetStatus("Clipboard is empty.");
+            return;
+        }
+    
+        EmptyState.Visibility = Visibility.Collapsed;
+        NoResultsState.Visibility = Visibility.Collapsed;
+        LoadingState.Visibility = Visibility.Visible;
+        GamesList.Visibility = Visibility.Collapsed;
+        SearchBox.Text = "";
+        SetStatus("Loading list from clipboard…");
+    
+        try
+        {
+            ParseAndLoad(raw);
+        }
+        catch (Exception ex)
+        {
+            LoadingState.Visibility = Visibility.Collapsed;
+            EmptyState.Visibility = Visibility.Visible;
+            SetStatus($"Error: {ex.Message}");
+            MessageBox.Show($"Could not parse the clipboard content:\n{ex.Message}",
+                "Parsing error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private async void LoadList_Click(object sender, RoutedEventArgs e) => await LoadListAsync();
 
     private async Task LoadListAsync()

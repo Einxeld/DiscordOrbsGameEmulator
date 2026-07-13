@@ -14,6 +14,7 @@ The application copies itself to the paths listed in [games.txt](https://raw.git
 1. Extract the program to a separate folder.
 2. Copy the **raw** link: `https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt`
 3. Paste it into the URL field and click **"Load List"**.
+3.1. If loading the list does not work - copy it and use **Paste Clipboard** button.
 4. For each game:
    - **Install** — copies the program to the specified path, renaming the `.exe` accordingly.
    - **Launch** — runs the copied `.exe` with the `--emulate "GameName"` argument.

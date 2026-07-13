@@ -310,22 +310,27 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="Auto" MinWidth="86.917"/>
+                        <ColumnDefinition Width="Auto" MinWidth="110"/>
                         <ColumnDefinition Width="Auto" MinWidth="105.083"/>
                     </Grid.ColumnDefinitions>
 
                     <TextBox Grid.Column="0"
-                             x:Name="UrlTextBox"
-                             Style="{StaticResource UrlBox}"
-                             Text="https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt"
-                             Margin="0,0,5,0"/>
+                        x:Name="UrlTextBox"
+                        Style="{StaticResource UrlBox}"
+                        Text="https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt"
+                        Margin="0,0,5,0"/>
                     <Button Content="Load List"
-                            Style="{StaticResource InstallButton}"
-                            Margin="5,2,5,2"
-                            Click="LoadList_Click" Grid.Column="1"/>
+                        Style="{StaticResource InstallButton}"
+                        Margin="5,2,5,2"
+                        Click="LoadList_Click" Grid.Column="1"/>
                     <Button Grid.Column="2"
-                            Content="Recheck Files"
-                            Style="{StaticResource ReloadButton}"
-                            Click="RefreshStatus_Click" Margin="5,2,0,2"/>
+                        Content="📋 Paste Clipboard"
+                        Style="{StaticResource ReloadButton}"
+                        Click="PasteList_Click" Margin="5,2,5,2"/>
+                    <Button Grid.Column="3"
+                        Content="Recheck Files"
+                        Style="{StaticResource ReloadButton}"
+                        Click="RefreshStatus_Click" Margin="5,2,0,2"/>
                 </Grid>
             </Border>
 
