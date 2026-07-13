@@ -2,7 +2,7 @@
 
 The application copies itself to the paths listed in [games.txt](https://raw.githubusercontent.com/Einxeld/DiscordOrbsGameEmulator/refs/heads/main/games.txt), emulating the presence of games to obtain Discord Orbs.
 
-<img width="803" height="644" alt="image" src="https://github.com/user-attachments/assets/a0e6fb05-32b1-4530-a47a-69df9b3d964c" />
+<img width="806" height="643" alt="1" src="https://github.com/user-attachments/assets/02b680e7-7311-4a1d-b440-f89e3d73f59a" />
 
 ## Requirements
 
@@ -29,6 +29,8 @@ or here: https://cdn.discordapp.com/detectables/games.json
 # Lines starting with # are comments
 # Each line: Game Name | Full Path
 Neverness to Everness | C:\Program Files (x86)\Steam\steamapps\common\Neverness to Everness\Win64\HTGame.exe
+# Or for games with .acf file: Game Name | Full Path | SteamId | Steam App Name
+GOALS | C:\Program Files (x86)\Steam\steamapps\common\GOALS\Game\Binaries\Win64\Goals.exe | 2753000 | GOALS
 ```
 
 ## Building from Source
