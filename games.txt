@@ -1,5 +1,6 @@
 # Each line: Game name | full exe path
 
+Runescape | C:\Program Files (x86)\Steam\steamapps\common\Runescape\runescape.exe
 Stalzone | C:\Program Files (x86)\Steam\steamapps\common\stalzone\bin\stalzonew.exe
 Old School RuneScape | C:\Program Files (x86)\Steam\steamapps\common\old school runescape\win64\osclient.exe
 Gear Up | C:\Program Files (x86)\Steam\steamapps\common\GearUp\Gearup_ball.exe
