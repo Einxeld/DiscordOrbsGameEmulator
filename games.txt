@@ -1,5 +1,7 @@
 # Each line: Game name | full exe path
 
+Shift At Midnight Demo | C:\Program Files (x86)\Steam\steamapps\common\Shift At Midnight Demo\ShiftAtMidnight.exe | 4050060 | Shift At Midnight Demo
+Battlefield 6 | C:\Program Files (x86)\Steam\steamapps\common\battlefield 6\bf6.exe
 Runescape | C:\Program Files (x86)\Steam\steamapps\common\Runescape\runescape.exe
 Stalzone | C:\Program Files (x86)\Steam\steamapps\common\stalzone\bin\stalzonew.exe
 Old School RuneScape | C:\Program Files (x86)\Steam\steamapps\common\old school runescape\win64\osclient.exe
