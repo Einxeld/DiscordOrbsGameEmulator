@@ -1,6 +1,5 @@
 # Each line: Game name | full exe path
 
-League of Legends | C:\Program Files (x86)\Steam\steamapps\common\League of Legends\Game\League of Legends.exe 
 Umamusume Pretty Derby | C:\Program Files (x86)\Steam\steamapps\common\UmamusumePrettyDerby\UmamusumePrettyDerby.exe
 Eve Online | C:\Program Files (x86)\Steam\steamapps\common\Eve Online\exefile.exe
 Shift At Midnight Demo | C:\Program Files (x86)\Steam\steamapps\common\Shift At Midnight Demo\ShiftAtMidnight.exe | 4050060 | Shift At Midnight Demo
