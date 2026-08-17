@@ -1,5 +1,6 @@
 # Each line: Game name | full exe path
 
+!⚠⚠⚠ IMPORTANT ⚠⚠⚠ - New version on Github - v8 | You can now search and add any game yourself
 Umamusume Pretty Derby | C:\Program Files (x86)\Steam\steamapps\common\UmamusumePrettyDerby\UmamusumePrettyDerby.exe
 Eve Online | C:\Program Files (x86)\Steam\steamapps\common\Eve Online\exefile.exe
 Shift At Midnight Demo | C:\Program Files (x86)\Steam\steamapps\common\Shift At Midnight Demo\ShiftAtMidnight.exe | 4050060 | Shift At Midnight Demo
