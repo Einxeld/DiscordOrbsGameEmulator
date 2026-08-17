@@ -3,4 +3,9 @@
   <PropertyGroup>
     <_LastSelectedProfileId>C:\Users\Admin\Projects\DiscordOrbsGameEmulator\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="AddGameWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -23,6 +23,7 @@ public class GameEntry : INotifyPropertyChanged
 
     public string GameName { get; init; } = "";
     public string ExePath { get; init; } = "";
+    public bool IsCustom { get; init; }
     public string Directory => Path.GetDirectoryName(ExePath) ?? "";
     public string ExeName => Path.GetFileName(ExePath) ?? "";
 
@@ -327,7 +328,7 @@ public partial class MainWindow : Window
     // ── Load list from GitHub ─────────────────────────────────────────────────
 
     private void PasteList_Click(object sender, RoutedEventArgs e) => LoadListFromClipboard();
-    
+
     private void LoadListFromClipboard()
     {
         string raw;
@@ -347,20 +348,20 @@ public partial class MainWindow : Window
                 "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
-    
+
         if (string.IsNullOrWhiteSpace(raw))
         {
             SetStatus("Clipboard is empty.");
             return;
         }
-    
+
         EmptyState.Visibility = Visibility.Collapsed;
         NoResultsState.Visibility = Visibility.Collapsed;
         LoadingState.Visibility = Visibility.Visible;
         GamesList.Visibility = Visibility.Collapsed;
         SearchBox.Text = "";
         SetStatus("Loading list from clipboard…");
-    
+
         try
         {
             ParseAndLoad(raw);
@@ -430,10 +431,13 @@ public partial class MainWindow : Window
             if (!exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 exePath += ".exe";
 
-            var entry = new GameEntry { GameName = gameName, ExePath = exePath, SteamAppId = appId };
+            var entry = new GameEntry { GameName = gameName, ExePath = exePath, SteamAppId = appId, IsCustom = false };
             entry.IsInstalled = File.Exists(exePath);
             _games.Add(entry);
         }
+
+        // Merge locally saved custom and online-searched games
+        LoadPersistedCustomGames();
 
         var sorted = _games
             .OrderBy(g => g.GameName, StringComparer.OrdinalIgnoreCase)
@@ -660,6 +664,141 @@ public partial class MainWindow : Window
         }
     }
 
+    // ── CUSTOM & MANUAL GAMES PERSISTENCE ─────────────────────────────────────
+
+    private static readonly string CustomGamesFile =
+        Path.Combine(AnalyticsDir, "custom_games.txt");
+
+    private void AddGame_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new AddGameWindow { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.ResultGameEntry is { } newGame)
+        {
+            // Avoid duplicate additions
+            var existing = _games.FirstOrDefault(g =>
+                g.GameName.Equals(newGame.GameName, StringComparison.OrdinalIgnoreCase) ||
+                g.ExePath.Equals(newGame.ExePath, StringComparison.OrdinalIgnoreCase));
+
+            if (existing is not null)
+            {
+                MessageBox.Show($"'{newGame.GameName}' is already present in the list.",
+                    "Already Added", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var customEntry = new GameEntry
+            {
+                GameName = newGame.GameName,
+                ExePath = newGame.ExePath,
+                SteamAppId = newGame.SteamAppId,
+                IsInstalled = newGame.IsInstalled,
+                IsCustom = true
+            };
+
+            _games.Add(customEntry);
+            SaveCustomGame(customEntry);
+            RefreshAll($"✓ Added '{customEntry.GameName}' to the list.");
+        }
+    }
+
+    private static void SaveCustomGame(GameEntry entry)
+    {
+        try
+        {
+            Directory.CreateDirectory(AnalyticsDir);
+            string line = $"{entry.GameName}|{entry.ExePath}|{entry.SteamAppId ?? ""}";
+            File.AppendAllLines(CustomGamesFile, [line]);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to persist custom game: {ex.Message}");
+        }
+    }
+
+    private static void RemovePersistedCustomGame(GameEntry entry)
+    {
+        if (!File.Exists(CustomGamesFile)) return;
+
+        try
+        {
+            var lines = File.ReadAllLines(CustomGamesFile);
+            var remainingLines = lines.Where(line =>
+            {
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#')) return true;
+                var parts = line.Split('|', 3, StringSplitOptions.TrimEntries);
+                if (parts.Length < 2) return true;
+
+                bool match = parts[0].Equals(entry.GameName, StringComparison.OrdinalIgnoreCase) ||
+                             parts[1].Equals(entry.ExePath, StringComparison.OrdinalIgnoreCase);
+                return !match;
+            }).ToList();
+
+            File.WriteAllLines(CustomGamesFile, remainingLines);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to remove custom game: {ex.Message}");
+        }
+    }
+
+    private void RemoveCustomGameButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not GameEntry entry) return;
+
+        string extraWarning = entry.IsInstalled
+            ? "\n\n(Note: Installed files on disk will NOT be deleted automatically. You can delete them before removing, or leave them.)"
+            : "";
+
+        var result = MessageBox.Show(
+            $"Remove '{entry.GameName}' from your custom added games list?{extraWarning}",
+            "Remove Custom Game",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        _games.Remove(entry);
+        RemovePersistedCustomGame(entry);
+        ApplySearch(SearchBox.Text);
+        SetStatus($"Removed '{entry.GameName}' from custom games.");
+    }
+
+    private void LoadPersistedCustomGames()
+    {
+        if (!File.Exists(CustomGamesFile)) return;
+
+        try
+        {
+            string[] lines = File.ReadAllLines(CustomGamesFile);
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#')) continue;
+                var parts = line.Split('|', 3, StringSplitOptions.TrimEntries);
+                if (parts.Length < 2) continue;
+
+                string name = parts[0];
+                string exePath = parts[1];
+                string? steamId = parts.Length > 2 && !string.IsNullOrWhiteSpace(parts[2]) ? parts[2] : null;
+
+                if (_games.Any(g => g.GameName.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                _games.Add(new GameEntry
+                {
+                    GameName = name,
+                    ExePath = exePath,
+                    SteamAppId = steamId,
+                    IsInstalled = File.Exists(exePath),
+                    IsCustom = true
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading custom games: {ex.Message}");
+        }
+    }
+
     // ── OPEN FOLDER ───────────────────────────────────────────────────────────
 
     private void OpenFolderButton_Click(object sender, RoutedEventArgs e)
@@ -742,6 +881,15 @@ public partial class MainWindow : Window
                 "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private void Minimize_Click(object sender, RoutedEventArgs e)
+        => WindowState = WindowState.Minimized;
+
+    private void Maximize_Click(object sender, RoutedEventArgs e)
+        => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void Close_Click(object sender, RoutedEventArgs e)
+        => Close();
 }
 
 public class InverseBooleanToVisibilityConverter : IValueConverter
