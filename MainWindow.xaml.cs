@@ -4,8 +4,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -77,6 +80,12 @@ public partial class MainWindow : Window
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
     private readonly ObservableCollection<GameEntry> _games = [];
 
+    // Current App Version
+    private const int CurrentVersionNumber = 8;
+    private const string CurrentVersionTag = "v8";
+    private string _latestReleaseUrl = "https://github.com/Einxeld/DiscordOrbsGameEmulator/releases";
+    private const string GitHubApiReleasesUrl = "https://api.github.com/repos/Einxeld/DiscordOrbsGameEmulator/releases/latest";
+
     // Emulation session state
     private DispatcherTimer? _emulationTimer;
     private DateTime _emulationStart;
@@ -121,9 +130,7 @@ public partial class MainWindow : Window
             properties = new
             {
                 distinct_id = GetOrCreateUserId(),
-                app_version =
-                    System.Reflection.Assembly.GetExecutingAssembly()
-                        .GetName().Version?.ToString(),
+                app_version = CurrentVersionTag,
                 os = Environment.OSVersion.VersionString
             }
         };
@@ -145,6 +152,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _ = SendDailyActiveUserAsync();
+        _ = CheckForUpdatesAsync();
 
         GamesList.ItemsSource = _games;
 
@@ -159,16 +167,60 @@ public partial class MainWindow : Window
         int idx = Array.IndexOf(args, "--emulate");
         if (idx >= 0 && idx + 1 < args.Length)
         {
-            // Capture the original launcher path so "Закончить" can reopen it
             int lpIdx = Array.IndexOf(args, "--launcher-path");
             string? launcherPath = (lpIdx >= 0 && lpIdx + 1 < args.Length) ? args[lpIdx + 1] : null;
 
             ShowEmulationMode(args[idx + 1], launcherPath);
-            return; // Don't auto-load in emulation mode
+            return;
         }
 
         // Auto-load the list if a URL is already configured
         Loaded += async (_, _) => await LoadListAsync();
+    }
+
+    // ── Update Checker ────────────────────────────────────────────────────────
+
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Get, GitHubApiReleasesUrl);
+            req.Headers.UserAgent.Add(new ProductInfoHeaderValue("DiscordOrbsGameEmulator", CurrentVersionTag));
+
+            var response = await Http.SendAsync(req);
+            if (!response.IsSuccessStatusCode) return;
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+            var root = doc.RootElement;
+
+            string tagName = root.GetProperty("tag_name").GetString() ?? "";
+            string htmlUrl = root.TryGetProperty("html_url", out var urlElem) ? urlElem.GetString() ?? "" : "";
+
+            int remoteVersion = ParseVersionNumber(tagName);
+            if (remoteVersion > CurrentVersionNumber)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!string.IsNullOrEmpty(htmlUrl))
+                        _latestReleaseUrl = htmlUrl;
+
+                    GitHubButton.Content = $"✨ Update {tagName} Available!";
+                    GitHubButton.ToolTip = $"Click to download latest version ({tagName})";
+                    GitHubButton.Tag = "UpdateAvailable"; // Triggers the animated pulse effect
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Update check failed: {ex.Message}");
+        }
+    }
+
+    private static int ParseVersionNumber(string tag)
+    {
+        var match = Regex.Match(tag, @"\d+");
+        return match.Success && int.TryParse(match.Value, out int v) ? v : 0;
     }
 
     // ── Search ────────────────────────────────────────────────────────────────
@@ -186,7 +238,6 @@ public partial class MainWindow : Window
 
         if (string.IsNullOrEmpty(trimmed))
         {
-            // Show all
             GamesList.ItemsSource = _games;
             GamesList.Visibility = Visibility.Visible;
             NoResultsState.Visibility = Visibility.Collapsed;
@@ -217,21 +268,17 @@ public partial class MainWindow : Window
     {
         Title = gameName;
 
-        // Remember the original launcher exe so "Закончить" can reopen it
         _launcherExePath = (launcherPath is not null && File.Exists(launcherPath))
             ? launcherPath
-            : FindTargetExe(); // fallback: best-effort
+            : FindTargetExe();
 
-        // Hide the launcher UI, show only the emulation overlay
         LauncherRoot.Visibility = Visibility.Collapsed;
         EmulationOverlay.Visibility = Visibility.Visible;
         EmulationTitle.Text = gameName;
 
-        // Reset progress and time display
         EmulationProgressFill.Width = 0;
         EmulationTimeText.Text = "00:00";
 
-        // Start the session timer
         _emulationStart = DateTime.Now;
         _emulationTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _emulationTimer.Tick += EmulationTimer_Tick;
@@ -243,16 +290,13 @@ public partial class MainWindow : Window
         var elapsed = DateTime.Now - _emulationStart;
         double totalSec = elapsed.TotalSeconds;
 
-        // Update time label (MM:SS)
         int minutes = (int)(totalSec / 60);
         int seconds = (int)(totalSec % 60);
         EmulationTimeText.Text = $"{minutes:D2}:{seconds:D2}";
 
-        // Update progress bar width (0 → ProgressBarMaxWidth over 15 minutes)
         double progress = Math.Min(1.0, totalSec / EmulationTotalSeconds);
         EmulationProgressFill.Width = progress * ProgressBarMaxWidth;
 
-        // Once full, stop ticking and update hint text
         if (progress >= 1.0)
         {
             _emulationTimer!.Stop();
@@ -260,12 +304,10 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>User clicks "Закончить" — stops emulation, relaunches the launcher, closes this window.</summary>
     private void FinishEmulation_Click(object sender, RoutedEventArgs e)
     {
         _emulationTimer?.Stop();
 
-        // Reopen the original launcher (path was passed via --launcher-path)
         if (_launcherExePath is not null)
         {
             try
@@ -278,7 +320,6 @@ public partial class MainWindow : Window
             }
             catch
             {
-                // If relaunch fails, still close this window — user can open the launcher manually.
             }
         }
 
@@ -289,24 +330,27 @@ public partial class MainWindow : Window
 
     private void GitHubButton_Click(object sender, RoutedEventArgs e)
     {
+        string targetUrl = (GitHubButton.Tag as string) == "UpdateAvailable"
+            ? _latestReleaseUrl
+            : GitHubUrl;
+
         try
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = GitHubUrl,
+                FileName = targetUrl,
                 UseShellExecute = true
             });
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Could not open the browser ({GitHubUrl}):\n{ex.Message}",
+            MessageBox.Show($"Could not open the browser ({targetUrl}):\n{ex.Message}",
                 "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    /// <summary>Returns the path of the currently running executable.</summary>
     private static string? FindTargetExe()
     {
         string? path = Environment.ProcessPath
@@ -316,7 +360,6 @@ public partial class MainWindow : Window
 
     private void SetStatus(string msg) => StatusBar.Text = msg;
 
-    /// <summary>Re-checks every entry against the filesystem and re-applies the current search filter.</summary>
     private void RefreshAll(string? statusMessage = null)
     {
         foreach (var g in _games)
@@ -436,7 +479,6 @@ public partial class MainWindow : Window
             _games.Add(entry);
         }
 
-        // Merge locally saved custom and online-searched games
         LoadPersistedCustomGames();
 
         var sorted = _games
@@ -489,7 +531,6 @@ public partial class MainWindow : Window
                 originalPrefix: "DiscordOrbsGameEmulator",
                 newPrefix: Path.GetFileNameWithoutExtension(entry.ExeName));
 
-            // Drop marker so we know this folder is safe to fully delete later.
             File.WriteAllText(Path.Combine(entry.Directory, ".orb_emulation"), "");
 
             if (entry.AcfPath is not null)
@@ -526,9 +567,6 @@ public partial class MainWindow : Window
         return null;
     }
 
-    /// <summary>Recursively copies <paramref name="source"/> into <paramref name="destination"/>,
-    /// renaming files whose name starts with <paramref name="originalPrefix"/> to start with
-    /// <paramref name="newPrefix"/> instead.</summary>
     private static void CopyDirectory(string source, string destination, bool overwrite,
         string originalPrefix, string newPrefix)
     {
@@ -572,7 +610,6 @@ public partial class MainWindow : Window
                 UseShellExecute = false
             });
 
-            // Close the launcher now that the emulated window is starting
             Application.Current.Shutdown();
         }
         catch (Exception ex)
@@ -612,10 +649,9 @@ public partial class MainWindow : Window
             {
                 Directory.Delete(entry.Directory, recursive: true);
 
-                // Remove ACF marker if we created one
                 if (entry.AcfPath is not null && File.Exists(entry.AcfPath))
                 {
-                    try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
+                    try { File.Delete(entry.AcfPath); } catch { }
                 }
 
                 RefreshAll($"✗  {entry.GameName} deleted (folder deleted completely).");
@@ -647,10 +683,9 @@ public partial class MainWindow : Window
             {
                 File.Delete(entry.ExePath);
 
-                // Remove ACF marker if we created one
                 if (entry.AcfPath is not null && File.Exists(entry.AcfPath))
                 {
-                    try { File.Delete(entry.AcfPath); } catch { /* best effort */ }
+                    try { File.Delete(entry.AcfPath); } catch { }
                 }
 
                 RefreshAll($"✗  {entry.GameName} deleted (only .exe).");
@@ -674,7 +709,6 @@ public partial class MainWindow : Window
         var dialog = new AddGameWindow { Owner = this };
         if (dialog.ShowDialog() == true && dialog.ResultGameEntry is { } newGame)
         {
-            // Avoid duplicate additions
             var existing = _games.FirstOrDefault(g =>
                 g.GameName.Equals(newGame.GameName, StringComparison.OrdinalIgnoreCase) ||
                 g.ExePath.Equals(newGame.ExePath, StringComparison.OrdinalIgnoreCase));
@@ -843,7 +877,6 @@ public partial class MainWindow : Window
         {
             if (File.Exists(acfPath))
             {
-                // Open Explorer with the ACF file selected
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "explorer.exe",
@@ -854,7 +887,6 @@ public partial class MainWindow : Window
             }
             else
             {
-                // ACF not yet created — open the steamapps folder instead
                 string? steamappsDir = Path.GetDirectoryName(acfPath);
                 if (steamappsDir is not null && System.IO.Directory.Exists(steamappsDir))
                 {

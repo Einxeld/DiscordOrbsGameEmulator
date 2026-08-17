@@ -151,11 +151,30 @@
             <Setter Property="Foreground" Value="#1E1E2E"/>
         </Style>
 
+        <!-- GitHub Button Style with Update Pulse Animation -->
         <Style x:Key="GithubButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
             <Setter Property="Background" Value="#313145"/>
             <Setter Property="Foreground" Value="#E0E0F0"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Padding" Value="14,0"/>
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="UpdateAvailable">
+                    <Setter Property="Background" Value="#E67E22"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard x:Name="PulseStoryboard">
+                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="#D35400"
+                                        Duration="0:0:0.8"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="PulseStoryboard"/>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="FinishButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
@@ -322,8 +341,10 @@
     <!-- ══ MAIN LAYOUT GRID ══ -->
     <Grid Background="#1E1E2E">
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/> <!-- Custom Title Bar -->
-            <RowDefinition Height="*"/>  <!-- Main Content -->
+            <RowDefinition Height="32"/>
+            <!-- Custom Title Bar -->
+            <RowDefinition Height="*"/>
+            <!-- Main Content -->
         </Grid.RowDefinitions>
 
         <!-- ══ CUSTOM TITLE BAR ══ -->
@@ -376,7 +397,7 @@
                         </StackPanel>
 
                         <Button x:Name="GitHubButton"
-                                Content="GitHub (Updates here)"
+                                Content="GitHub (v8)"
                                 Style="{StaticResource GithubButton}"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
