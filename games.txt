@@ -1,6 +1,6 @@
 # Each line: Game name | full exe path
 
-!⚠⚠⚠ IMPORTANT ⚠⚠⚠ - New version on Github - v8 | You can now search and add any game yourself
+!⚠⚠⚠ IMPORTANT ⚠⚠⚠ - New version on Github - v9 | You can now search and add any game yourself
 MARVEL Tōkon: Fighting Souls | C:\Program Files (x86)\Steam\steamapps\common\MTFS\Binaries\Win64\MTFSSteam-Win64-Shipping.exe | 3787240 | MARVEL Tōkon: Fighting Souls
 Umamusume Pretty Derby | C:\Program Files (x86)\Steam\steamapps\common\UmamusumePrettyDerby\UmamusumePrettyDerby.exe
 Eve Online | C:\Program Files (x86)\Steam\steamapps\common\Eve Online\exefile.exe
