@@ -84,6 +84,14 @@ public partial class AddGameWindow : Window
     {
         if (OnlineResultsList.SelectedItem is not DiscordGameModel selected) return;
 
+        if (!selected.HasExecutables)
+        {
+            OnlineExePathBox.Text = string.Empty;
+            ExePathLabel.Text = "⚠️ No executable in database — please browse to your game's .exe:";
+            return;
+        }
+
+        ExePathLabel.Text = "Executable Path (Auto-generated or custom):";
         string exeName = selected.GetPreferredExecutable();
         string? steamId = selected.GetSteamAppId();
         string sanitizedFolder = SanitizeFolderName(selected.Name);
@@ -108,7 +116,6 @@ public partial class AddGameWindow : Window
 
     private static string SanitizeFolderName(string folderName)
     {
-        // Keep only letters, digits, and spaces
         string sanitized = Regex.Replace(folderName, @"[^a-zA-Z0-9 ]", "").Trim();
         return string.IsNullOrWhiteSpace(sanitized) ? "Game" : sanitized;
     }
@@ -161,7 +168,8 @@ public partial class AddGameWindow : Window
             string path = OnlineExePathBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(path))
             {
-                MessageBox.Show("Please provide an executable path for this game.", "Path Required",
+                MessageBox.Show("No executable path provided.\n\nPlease click 'Browse...' to select the game's executable or switch to 'Add Manually'.",
+                    "Executable Required",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -210,7 +218,7 @@ public partial class AddGameWindow : Window
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e)
-    => WindowState = WindowState.Minimized;
+        => WindowState = WindowState.Minimized;
 
     private void Maximize_Click(object sender, RoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
@@ -240,18 +248,33 @@ public class DiscordGameModel
     [JsonPropertyName("third_party_skus")]
     public List<DiscordSkuModel>? ThirdPartySkus { get; set; }
 
+    public bool HasExecutables => Executables != null && Executables.Any(e => !string.IsNullOrWhiteSpace(e.Name));
+
     public string ExecutableSummary
     {
         get
         {
-            var winExes = Executables?
-                .Where(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true)
-                .Select(e => Path.GetFileName(e.Name))
-                .Distinct();
+            if (!HasExecutables)
+                return "⚠️ No executable found in database — add manually or browse for .exe";
 
-            return winExes is not null && winExes.Any()
-                ? "Executable: " + string.Join(", ", winExes)
-                : "Executable: (win32 default)";
+            var winExes = Executables?
+                .Where(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true && !string.IsNullOrWhiteSpace(e.Name))
+                .Select(e => Path.GetFileName(e.Name))
+                .Distinct()
+                .ToList();
+
+            if (winExes is not null && winExes.Count > 0)
+                return "Executable: " + string.Join(", ", winExes);
+
+            var anyExes = Executables?
+                .Where(e => !string.IsNullOrWhiteSpace(e.Name))
+                .Select(e => Path.GetFileName(e.Name))
+                .Distinct()
+                .ToList();
+
+            return anyExes is not null && anyExes.Count > 0
+                ? "Executable: " + string.Join(", ", anyExes)
+                : "⚠️ No executable found in database — add manually or browse for .exe";
         }
     }
 
@@ -278,11 +301,16 @@ public class DiscordGameModel
     public string GetPreferredExecutable()
     {
         var winExe = Executables?
-            .FirstOrDefault(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true && !e.IsLauncher);
+            .FirstOrDefault(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true
+                              && !e.IsLauncher
+                              && !string.IsNullOrWhiteSpace(e.Name));
 
-        winExe ??= Executables?.FirstOrDefault(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true);
+        winExe ??= Executables?.FirstOrDefault(e => e.Os?.Equals("win32", StringComparison.OrdinalIgnoreCase) == true
+                                                 && !string.IsNullOrWhiteSpace(e.Name));
 
-        if (winExe?.Name is not null)
+        winExe ??= Executables?.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Name));
+
+        if (!string.IsNullOrWhiteSpace(winExe?.Name))
             return Path.GetFileName(winExe.Name);
 
         return $"{Name.ToLower().Replace(" ", "")}.exe";
